@@ -238,7 +238,7 @@ draw_graph :: proc(gfx: ^GFX_Context, header: string, history: ^queue.Queue(f64)
 	graph_size: f64 = 150
 
 	max_val : f64 = 0
-	min_val : f64 = 1e5000
+	min_val : f64 = max(f64)
 	sum_val : f64 = 0
 	for i := 0; i < queue.len(history^); i += 1 {
 		entry := queue.get(history, i)

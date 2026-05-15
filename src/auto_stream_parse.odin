@@ -207,7 +207,7 @@ as_parse_next_event :: proc(trace: ^Trace, chunk: []u8, process: ^Process, threa
 	return .EventRead
 }
 
-as_parse :: proc(trace: ^Trace, fd: os.Handle, header_size: i64) -> bool {
+as_parse :: proc(trace: ^Trace, fd: ^os.File, header_size: i64) -> bool {
 	buffer_header := spall_fmt.Auto_Buffer_Header{}
 	p := &trace.parser
 

@@ -108,7 +108,7 @@ ms_v1_push_event :: proc(trace: ^Trace, process_id, thread_id: u32, event: ^Even
 	return p_idx, t_idx, len(depth.events)-1, true
 }
 
-ms_v1_parse :: proc(trace: ^Trace, fd: os.Handle, header_size: i64) -> bool {
+ms_v1_parse :: proc(trace: ^Trace, fd: ^os.File, header_size: i64) -> bool {
 	temp_ev := TempEvent{}
 	ev := Event{}
 	p := &trace.parser
@@ -391,7 +391,7 @@ ms_v2_get_next_buffer :: proc(trace: ^Trace, chunk: []u8, buffer_header: ^spall_
 	return .EventRead
 }
 
-ms_v2_parse :: proc(trace: ^Trace, fd: os.Handle, header_size: i64) -> bool {
+ms_v2_parse :: proc(trace: ^Trace, fd: ^os.File, header_size: i64) -> bool {
 	buffer_header := spall_fmt.Manual_Buffer_Header{}
 	p := &trace.parser
 
