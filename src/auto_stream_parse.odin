@@ -217,8 +217,8 @@ as_parse :: proc(trace: ^Trace, fd: ^os.File, header_size: i64) -> bool {
 	chunk_buffer := make([]u8, 4 * 1024 * 1024)
 	defer delete(chunk_buffer)
 
-	read_size, err := os.read_at(fd, chunk_buffer, 0)
-	if err != nil {
+	read_size, read_ok := read_at_partial(fd, chunk_buffer, 0)
+	if !read_ok {
 		post_error(trace, "Unable to read file!")
 		return false
 	}

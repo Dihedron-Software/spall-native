@@ -3,6 +3,7 @@ package main
 import "base:runtime"
 
 import "core:os"
+import "core:io"
 import "core:fmt"
 import "core:slice"
 import "core:bytes"
@@ -83,13 +84,20 @@ load_trace :: proc(loader: ^Loader, trace: ^Trace, ui_state: ^UIState, trace_nam
 
 real_pos :: proc(p: ^Parser) -> i64 { return p.pos }
 chunk_pos :: proc(p: ^Parser) -> i64 { return p.pos - p.offset }
-get_chunk :: proc(p: ^Parser, fd: ^os.File, chunk_buffer: []u8) -> (int, bool) {
-	rd_sz, err2 := os.read_at(fd, chunk_buffer, p.pos)
-	if err2 != nil {
-		return 0, false
-	}
 
+read_at_partial :: proc(fd: ^os.File, buf: []u8, offset: i64) -> (int, bool) {
+	rd_sz, err := os.read_at(fd, buf, offset)
+	if err != nil {
+		if v, is_io := err.(io.Error); is_io && (v == .EOF || v == .Unexpected_EOF) {
+			return rd_sz, true
+		}
+		return rd_sz, false
+	}
 	return rd_sz, true
+}
+
+get_chunk :: proc(p: ^Parser, fd: ^os.File, chunk_buffer: []u8) -> (int, bool) {
+	return read_at_partial(fd, chunk_buffer, p.pos)
 }
 
 setup_pid :: proc(trace: ^Trace, process_id: u32) -> int {
@@ -671,8 +679,8 @@ load_spall_file :: proc(loader: ^Loader, trace: ^Trace, file_name: string) {
 	fmt.printf("Loading %s, %M\n", trace.base_name, trace.total_size)
 
 	header_buffer := [0x4000]u8{}
-	rd_sz, err3 := os.read_at(trace_fd, header_buffer[:], 0)
-	if err3 != nil {
+	_, read_ok := read_at_partial(trace_fd, header_buffer[:], 0)
+	if !read_ok {
 		post_error(trace, "Unable to read %s!", file_name)
 		return
 	}
