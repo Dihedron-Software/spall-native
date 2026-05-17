@@ -339,7 +339,7 @@ main :: proc() {
 	ch_width = measure_text("a", .PSize, .MonoFont)
 
 	next_line(&ui_state.line_height, em)
-	ui_state.info_pane_height = ui_state.line_height * 8
+	ui_state.info_pane_height = (ui_state.line_height * 12)
 
 	start_tick := time.tick_now()
 	last_tick: time.Tick
