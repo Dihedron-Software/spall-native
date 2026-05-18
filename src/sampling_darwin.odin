@@ -6,7 +6,6 @@ import "base:runtime"
 
 import "core:fmt"
 import "core:os"
-import "core:os/os2"
 import "core:path/filepath"
 import "core:time"
 import "core:slice"
@@ -386,7 +385,7 @@ sample_child :: proc(trace: ^Trace, program_name: string, path: string, args: []
 		sample_setup.has_setup = true
 	}
 
-	env_vars, e_err := os2.environ(context.temp_allocator)
+	env_vars, e_err := os.environ(context.temp_allocator)
     if e_err != nil {
         fmt.printf("Failed to get environ %v\n", e_err)
         return
@@ -397,11 +396,11 @@ sample_child :: proc(trace: ^Trace, program_name: string, path: string, args: []
 		envs[i] = string(env_vars[i])
 	}
 
-	dir, err := os2.get_working_directory(context.temp_allocator)
+	dir, err := os.get_working_directory(context.temp_allocator)
 	if err != nil { return }
 
 	if path != "" {
-		err = os2.set_working_directory(path)
+		err = os.set_working_directory(path)
 		if err != nil { return }
 	}
 
