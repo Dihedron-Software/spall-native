@@ -810,6 +810,7 @@ load_spall_file :: proc(loader: ^Loader, trace: ^Trace, file_name: string) {
 			slice.sort_by(process.threads[:], tid_sort_proc)
 		}
 		slice.sort_by(trace.processes[:], pid_sort_proc)
+		slice.sort_by(trace.global_instants[:], instant_rendersort_proc)
 	case .Json:
 		json_process_events(trace)
 	}

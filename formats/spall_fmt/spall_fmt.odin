@@ -90,6 +90,12 @@ End_Event_V2 :: struct #packed {
 	time: u64,
 }
 
+Instant_Event_V2 :: struct #packed {
+	type: Manual_Event_Type,
+	time: u64,
+	name_len: u8,
+}
+
 Pad_Skip :: struct #packed {
 	type: Manual_Event_Type,
 	size:  u32,

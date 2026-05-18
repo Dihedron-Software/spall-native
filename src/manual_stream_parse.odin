@@ -335,6 +335,31 @@ ms_v2_parse_next_event :: proc(trace: ^Trace, chunk: []u8, process: ^Process, th
 		
 		p.pos += event_sz
 		return .EventRead
+	case .Instant:
+		event_sz := i64(size_of(spall_fmt.Instant_Event_V2))
+		if chunk_pos(p) + event_sz > i64(len(chunk)) {
+			return .PartialRead
+		}
+		event := (^spall_fmt.Instant_Event_V2)(raw_data(data_start))
+		event_tail := i64(event.name_len)
+		if (chunk_pos(p) + event_sz + event_tail) > i64(len(chunk)) {
+			return .PartialRead
+		}
+
+		name := string(data_start[event_sz:event_sz+event_tail])
+
+		instant := Instant{
+			id = in_get(&trace.intern, &trace.string_block, name),
+			timestamp = i64(event.time),
+		}
+
+		trace.total_min_time = min(trace.total_min_time, instant.timestamp)
+		trace.total_max_time = max(trace.total_max_time, instant.timestamp)
+		trace.instant_count += 1
+		non_zero_append(&trace.global_instants, instant)
+
+		p.pos += event_sz + event_tail
+		return .EventRead
 	case .Pad_Skip:
 		event_sz := i64(size_of(spall_fmt.Pad_Skip))
 		if chunk_pos(p) + event_sz > i64(len(chunk)) {

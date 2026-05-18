@@ -713,6 +713,18 @@ draw_flamegraphs :: proc(gfx: ^GFX_Context, trace: ^Trace, start_time, end_time:
 		}
 
 	}
+
+	// global instant markers
+	if (full_flamegraph_rect.w / cam.current_scale) * trace.stamp_scale < 1_000_000_000 {
+		inst_line_start  := full_flamegraph_rect.y + flamegraph_header_height - ui_state.top_line_gap
+		inst_line_height := full_flamegraph_rect.h
+		for inst in trace.global_instants {
+			mx := ui_state.side_pad + (f64(inst.timestamp - trace.total_min_time) * cam.current_scale) + cam.pan.x
+			if mx < ui_state.side_pad || mx > full_flamegraph_rect.w + ui_state.side_pad { continue }
+			draw_line(gfx, Vec2{mx, inst_line_start}, Vec2{mx, inst_line_start + inst_line_height}, 1, xbar_color)
+		}
+	}
+
 	flush_rects(gfx)
 
 	// graph
